@@ -4,6 +4,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import { useState } from 'react';
 import AuthForm from '@/components/AuthForm';
+import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 export default function Login() {
 
@@ -17,15 +18,23 @@ export default function Login() {
 
   async function loginWithGoogle(){
     await signIn("google")
-
-    
   }
  
 
 
 
   return (
-    <div className='w-full max-w-full flex justify-center  items-center flex-col'>
+    <>
+    <SnackbarProvider
+      iconVariant={{
+        success: '✅',
+        error: '✖️',
+        warning: '⚠️',
+        info: 'ℹ️',
+      }}
+    
+    />
+        <div className='w-full max-w-full flex justify-center  items-center flex-col'>
 
 
       <AuthForm
@@ -38,5 +47,7 @@ export default function Login() {
 
 
     </div>
+    </>
+
   );
 }

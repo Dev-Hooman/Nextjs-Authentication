@@ -18,31 +18,32 @@ const handler = NextAuth({
         password: { type: 'password', placeholder: 'Password' },
       },
       async authorize(credentials) {
+        const { username, password } = credentials;
 
-          const {username, password} = credentials
+        console.log("Credentials: ", username, password);
 
-          console.log("Credentials: ", username, password);
-          
-
+        try {
           await connectToDB();
           const user = await User.findOne({ username });
 
           console.log("User Found ?", user);
 
-          if (!user){
-            throw new Error("Invalid username or Password");
-
-          };
+          if (!user) {
+            throw new Error("Invalid username or password");
+          }
 
           const isPasswordValid = await bcrypt.compare(password, user.password);
 
-          if (!isPasswordValid) return null;
-          console.log("exiting Authorize...");
+          if (!isPasswordValid) {
+            throw new Error("Invalid username or password");
+          }
 
-
+          console.log("Exiting Authorize...");
           return user;
-        
-
+        } catch (error) {
+          console.error("Error during authorization:", error.message);
+          return null;
+        }
       },
     }),
   ],

@@ -9,6 +9,9 @@ import { useRouter } from 'next/navigation'
 import { storage } from '@/firebase/firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
+import { enqueueSnackbar, SnackbarProvider } from 'notistack'
+
+
 const AuthForm = ({ loginWithGoogle, AuthType }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -25,30 +28,24 @@ const AuthForm = ({ loginWithGoogle, AuthType }) => {
   async function handleSubmitForSignin(e) {
     e.preventDefault();
     setAuthLoad(true);
-    try {
-      const data = await signIn('credentials', {
-        redirect: false,
-        username,
-        password,
-      });
-      setAuthLoad(false);
-      console.log(data);
-    } catch (error) {
-      setAuthLoad(false);
-      console.log(error);
-    }
-  }
 
-  // const handleProfilePictureChange = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setProfilePicture(reader.result);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
+    const data = await signIn('credentials', {
+      redirect: false,
+      username,
+      password,
+    });
+    setAuthLoad(false);
+
+    //need to be fix
+    if (data.error == "CredentialsSignin") {
+      enqueueSnackbar("Credentials Error", { variant: 'error' })
+    } else {
+      enqueueSnackbar('Login Success!', { variant: 'success' })
+
+    }
+
+
+  }
 
   const handleProfilePictureChange = async (e) => {
     const file = e.target.files[0];
@@ -90,6 +87,7 @@ const AuthForm = ({ loginWithGoogle, AuthType }) => {
         })
       })
       setAuthLoad(false);
+
 
       if (response.ok) {
         router.push('/')
