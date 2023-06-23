@@ -1,9 +1,9 @@
+
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'
-
 
 // firebase imports
 import { storage } from '@/firebase/firebase';
@@ -12,7 +12,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 
-const AuthForm = ({ loginWithGoogle, AuthType }) => {
+const AuthForm = ({ loginWithGoogle, AuthType, loginWithGithub, loginWithTwitter }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -20,7 +20,6 @@ const AuthForm = ({ loginWithGoogle, AuthType }) => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  console.log("Uploading...", uploadProgress, "%");
 
   const router = useRouter();
 
@@ -40,6 +39,7 @@ const AuthForm = ({ loginWithGoogle, AuthType }) => {
     if (data.error == "CredentialsSignin") {
       enqueueSnackbar("Credentials Error", { variant: 'error' })
     } else {
+
       enqueueSnackbar('Login Success!', { variant: 'success' })
 
     }
@@ -77,7 +77,7 @@ const AuthForm = ({ loginWithGoogle, AuthType }) => {
     setAuthLoad(true);
 
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/auth/register`, {
         method: 'POST',
         body: JSON.stringify({
           email,
@@ -88,13 +88,20 @@ const AuthForm = ({ loginWithGoogle, AuthType }) => {
       })
       setAuthLoad(false);
 
+      console.log(response);
+
+      enqueueSnackbar('Register Success!', { variant: 'success' })
 
       if (response.ok) {
+
         router.push('/')
       }
 
     } catch (error) {
+      // enqueueSnackbar("Something went wrong..", { variant: 'error' })
+
       console.log(error);
+
     } finally {
       setAuthLoad(false);
     }
@@ -200,7 +207,8 @@ const AuthForm = ({ loginWithGoogle, AuthType }) => {
 
 
 
-      <button className="px-5 py-1.5 text-sm bg-red-600 hover:bg-red-400 rounded-full text-white" type="submit">
+      <button disabled={authLoad}
+        className={`px-5 py-1.5 text-sm ${authLoad ? "bg-red-300" : "bg-red-500 hover:bg-red-400"} bg-red-600  rounded-full text-white`} type="submit">
         {authLoad ? <>{'Loading...'}</> : <>{AuthType}</>}
       </button>
 
@@ -224,6 +232,27 @@ const AuthForm = ({ loginWithGoogle, AuthType }) => {
           onClick={loginWithGoogle}
         >
           <Image src="/assets/images/google.svg" alt="logo" width={30} height={30} className="object-contain" />
+
+
+        </button>
+
+        <button
+          type="button"
+          className="px-5 py-1.5 text-sm bg-white border-2 rounded-lg hover:bg-gray-300 text-black"
+          onClick={loginWithGithub}
+        >
+          <Image src="/assets/images/github.svg" alt="logo" width={30} height={30} className="object-contain" />
+
+
+        </button>
+
+        <button
+          type="button"
+          className="px-5 py-1.5 text-sm bg-white border-2 rounded-lg hover:bg-gray-300 text-black"
+          onClick={loginWithTwitter}
+        >
+
+          <Image src="/assets/images/twitter.svg" alt="logo" width={30} height={30} className="object-contain" />
 
 
         </button>

@@ -1,5 +1,8 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import GitHubProvider from "next-auth/providers/github";
+import TwitterProvider from "next-auth/providers/twitter"
+
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 
@@ -8,6 +11,16 @@ import User from '@/models/user';
 
 const handler = NextAuth({
   providers: [
+    TwitterProvider({
+      clientId: process.env.NEXT_PUBLIC_TWITTER_ID_CLIENT_ID,
+      clientSecret: process.env.NEXT_PUBLIC_TWITTER_ID_CLIENT_SECRET,
+      version: "2.0", // opt-in to Twitter OAuth 2.0
+    })
+    ,
+    GitHubProvider({
+      clientId: process.env.NEXT_PUBLIC_GITHUB_ID,
+      clientSecret: process.env.NEXT_PUBLIC_GITHUB_SECRET
+    }),
     GoogleProvider({
       clientId: process.env.NEXT_PUBLIC_GOOGLE_ID,
       clientSecret: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET,
@@ -53,13 +66,12 @@ const handler = NextAuth({
       const sessionUser = await User.findOne({ email: session.user.email });
       console.log(sessionUser);
       session.user.id = sessionUser._id.toString();
+      session.user.name = sessionUser.username
 
       return session;
     },
 
     async signIn({ account, profile }) {
-      console.log("Entring sigin...");
-
       if (account.provider === 'google') {
         try {
           await connectToDB();
@@ -70,6 +82,7 @@ const handler = NextAuth({
               email: profile.email,
               username: profile.name.replace(' ', '').toLowerCase(),
               image: profile.picture,
+              provider: "google"
             });
           }
 
@@ -78,13 +91,50 @@ const handler = NextAuth({
           console.log('Error checking if user exists: ', error.message);
           return false;
         }
-      } else if (account.provider == "credentials") {
+      }
+      else if (account.provider === 'github') {
+        try {
+          await connectToDB();
+          const userExists = await User.findOne({ email: profile.email });
+
+          if (!userExists) {
+            await User.create({
+              email: profile.email,
+              username: profile.login.replace('-', '').toLowerCase(),
+              image: profile.avatar_url,
+              provider: "github"
+            });
+          }
+          return true;
+        } catch (error) {
+          console.log('Error checking if user exists: ', error.message);
+          return false;
+        }
+      }
+      else if (account.provider === "credentials") {
         return true;
       }
+      else if (account.provider === "twitter") {
+
+        try {
+          await connectToDB();
+          const userExists = await User.findOne({ username: profile.data.username });
+
+          if (!userExists) {
+            await User.create({
+              username: profile.data.username,
+              image: profile.data.profile_image_url,
+            });
+          }
+
+          return true;
+        } catch (error) {
+          console.log('Error checking if user exists: ', error.message);
+          return false;
+        }
+      }
       console.log("Exiting sigin...");
-
       return false;
-
     },
 
     // jwt({ token, account, user }) {

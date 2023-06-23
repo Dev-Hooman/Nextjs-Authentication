@@ -4,11 +4,13 @@ import bcrypt from 'bcryptjs';
 
 export const POST = async (req) => {
   const { username, password, image, email } = await req.json();
-  console.log(username, password, image, email);
+  console.log( username, password, image, email );
   try {
     await connectToDB();
 
     const user = await User.findOne({ username })
+
+    console.log(user);
 
     if (user !== null) {
       return new Response('User already exists',
@@ -18,7 +20,7 @@ export const POST = async (req) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User({
+    const newUser = new User({
       email,
       username,
       password: hashedPassword,
@@ -26,7 +28,11 @@ export const POST = async (req) => {
 
     });
 
-    await newUser.save();
+    console.log("New User: ",newUser);
+
+    const Save = await newUser.save();
+    console.log("Save User: ",Save);
+
 
 
 
@@ -35,7 +41,9 @@ export const POST = async (req) => {
     )
 
   } catch (err) {
-    return new Response("Failed to create a new prompt", { status: 500 })
+
+
+    return new Response("Failed to create a User"+err.message, { status: 500 })
 
   }
 

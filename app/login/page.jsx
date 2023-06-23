@@ -8,45 +8,43 @@ import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 
 export default function Login() {
 
-  const {data: session} = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
 
-
-  if(session?.user){
+  if (session?.user) {
     router.push(`/`);
   }
 
-  async function loginWithGoogle(){
+  async function loginWithGoogle() {
     await signIn("google")
   }
- 
 
+  async function loginWithGithub() {
+    await signIn("github")
+  }
 
+  async function loginWithTwitter() {
+    await signIn("twitter")
+  }
 
   return (
     <>
-    <SnackbarProvider
-      iconVariant={{
-        success: '✅',
-        error: '✖️',
-        warning: '⚠️',
-        info: 'ℹ️',
-      }}
-    
-    />
-        <div className='w-full max-w-full flex justify-center  items-center flex-col'>
-
-
-      <AuthForm
-      AuthType={"Login"}
-      loginWithGoogle={loginWithGoogle}
+      <SnackbarProvider
+        iconVariant={{
+          success: '✅',
+          error: '✖️',
+          warning: '⚠️',
+          info: 'ℹ️',
+        }}
       />
-
-
-   
-
-
-    </div>
+      <div className='w-full max-w-full flex justify-center  items-center flex-col'>
+        <AuthForm
+          AuthType={"Login"}
+          loginWithGoogle={loginWithGoogle}
+          loginWithGithub={loginWithGithub}
+          loginWithTwitter={loginWithTwitter}
+        />
+      </div>
     </>
 
   );

@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 
 
 const Nav = () => {
-    const {data: session} = useSession();
+    const { data: session } = useSession();
     const [providers, setProviders] = useState(null)
     const [toggleDropdown, setToggleDropdown] = useState(false)
     const pathname = usePathname();
@@ -32,7 +32,7 @@ const Nav = () => {
                     height={30}
                     className='object-contain'
                 />
-                <p className='logo_text'>Raspberry Prompt</p>
+                <p className='logo_text'>NEXTJS 13 Authentication</p>
             </Link>
 
 
@@ -41,13 +41,7 @@ const Nav = () => {
                 {
                     session?.user ?
                         (<div className='flex gap-3 md:gap-5'>
-                            <Link href="/create-prompt"
-                                className="black_btn"
-                            >
-
-                                Create Prompt
-
-                            </Link>
+                
 
                             <button type="button" onClick={signOut} className="outline_btn">
                                 Sign Out
@@ -69,14 +63,14 @@ const Nav = () => {
                         )
                         :
                         (<>
-                                    <Link
-                                        href={"/login"}
-                                        className={` ${pathname=="/login" ?"black_btn" : "outline_btn"}`}
-                                     
-                                        // className='black_btn'
-                                    >
-                                        Sign in
-                                    </Link>
+                            <Link
+                                href={"/login"}
+                                className={` ${pathname == "/login" ? "black_btn" : "outline_btn"}`}
+
+                            // className='black_btn'
+                            >
+                               Login
+                            </Link>
 
                         </>)
 
@@ -127,7 +121,7 @@ const Nav = () => {
                                         }}
                                         className='mt-5 w-full black_btn'
                                     >
-                                        Sign Out
+                                        Logout
                                     </button>
 
 
@@ -137,19 +131,15 @@ const Nav = () => {
 
 
                     </>) : (<>
-                        {providers &&
-                            Object.values(providers).map((provider) => (
-                                <button
-                                    type='button'
-                                    key={provider.name}
-                                    onClick={() => {
-                                        signIn(provider.id);
-                                    }}
-                                    className='black_btn'
-                                >
-                                    Sign in
-                                </button>
-                            ))}</>)
+                        <Link
+                                href={"/login"}
+                                className={` ${pathname == "/login" ? "black_btn" : "outline_btn"}`}
+
+                            // className='black_btn'
+                            >
+                                Login 
+                            </Link>
+                      </>)
                 }
             </div>
 
